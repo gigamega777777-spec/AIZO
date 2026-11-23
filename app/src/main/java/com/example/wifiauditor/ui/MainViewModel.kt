@@ -28,6 +28,7 @@ data class UiState(
     val osintTarget: String = "",
     val osintPorts: List<PortResult> = emptyList(),
     val osintScanning: Boolean = false,
+    val packetCapture: Boolean = false,
 )
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
@@ -98,6 +99,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun setOsintTarget(v: String) = _state.update { it.copy(osintTarget = v) }
+
+    fun togglePacketCapture() = _state.update { it.copy(packetCapture = !it.packetCapture) }
 
     fun runOsintScan() {
         val ip = _state.value.osintTarget.trim()

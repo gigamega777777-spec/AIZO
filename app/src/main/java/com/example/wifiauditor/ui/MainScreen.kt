@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalTextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -30,6 +33,7 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
     var netsOpen by rememberSaveable { mutableStateOf(true) }
     var tab by rememberSaveable { mutableStateOf(0) }
 
+    CompositionLocalProvider(LocalTextStyle provides TextStyle(fontFamily = FontFamily.Cursive)) {
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -141,6 +145,11 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
                 Text("OSINT — разведка", style = MaterialTheme.typography.headlineSmall, color = Color(0xFF7C3AED))
                 OutlinedTextField(value = s.osintTarget, onValueChange = vm::setOsintTarget, label = { Text("Цель (IP/домен)") }, modifier = Modifier.fillMaxWidth())
                 Button(onClick = vm::runOsintScan, enabled = !s.osintScanning) { Text(if (s.osintScanning) "Сканирую…" else "Сканировать порты") }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Перехват пакетов")
+                    Spacer(Modifier.width(8.dp))
+                    Switch(checked = s.packetCapture, onCheckedChange = { vm.togglePacketCapture() })
+                }
                 s.osintPorts.forEach { p ->
                     Text("${p.port} ${p.service}: ${if (p.open) "ОТКРЫТ" else "закрыт"}", color = if (p.open) Color(0xFFDC2626) else Color.Unspecified)
                 }
@@ -152,6 +161,7 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
                 Text("Устройств: ${s.networks.size}")
             }
         }
+    }
     }
 }
 
