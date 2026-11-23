@@ -12,6 +12,8 @@ import androidx.compose.runtime.*
 import kotlinx.coroutines.delay
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.Modifier
+import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
