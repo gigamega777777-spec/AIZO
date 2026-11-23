@@ -1,6 +1,7 @@
 package com.example.wifiauditor.data
 
 import android.net.wifi.ScanResult
+import android.os.Build
 import com.example.wifiauditor.domain.model.*
 
 class WifiSecurityAnalyzer {
@@ -36,8 +37,27 @@ class WifiSecurityAnalyzer {
 
     @Suppress("DEPRECATION")
     fun toScannedAp(r: ScanResult): ScannedAp {
-        val ssid = r.SSID.orEmpty().ifBlank { "<hidden>" }
-        return ScannedAp(ssid, r.BSSID, r.level, r.frequency, channelFromFrequency(r.frequency), parseSecurity(r.capabilities))
+        val ssid = r.SSID.orEmpty().ifBlank { "<скрытая сеть>" }
+        val width = when (r.channelWidth) {
+            ScanResult.CHANNEL_WIDTH_20MHZ -> 20
+            ScanResult.CHANNEL_WIDTH_40MHZ -> 40
+            ScanResult.CHANNEL_WIDTH_80MHZ -> 80
+            ScanResult.CHANNEL_WIDTH_160MHZ, ScanResult.CHANNEL_WIDTH_80MHZ_PLUSMHZ -> 160
+            else -> null
+        }
+        val standard = if (Build.VERSION.SDK_INT >= 30) when (r.wifiStandard) {
+            1 -> "802.11a/b/g"
+            4 -> "Wi-Fi 4 (802.11n)"
+            5 -> "Wi-Fi 5 (802.11ac)"
+            6 -> "Wi-Fi 6 (802.11ax)"
+            7 -> "802.11ad"
+            8 -> "Wi-Fi 7 (802.11be)"
+            else -> null
+        } else null
+        return ScannedAp(
+            ssid, r.BSSID, r.level, r.frequency, channelFromFrequency(r.frequency),
+            parseSecurity(r.capabilities), width, standard, r.capabilities,
+        )
     }
 
     /** PMF (802.11w) – "required" определяем по флагу MFPR в capabilities, если он есть. */
@@ -88,7 +108,7 @@ class WifiSecurityAnalyzer {
     // ---------- Пассивное выявление аномалий (evil twin) ----------
     fun detectAnomalies(aps: List<ScannedAp>): List<Finding> {
         val out = mutableListOf<Finding>()
-        aps.filter { it.ssid != "<hidden>" }.groupBy { it.ssid }.forEach { (ssid, group) ->
+        aps.filter { it.ssid != "<скрытая сеть>" }.groupBy { it.ssid }.forEach { (ssid, group) ->
             if (group.map { it.bssid }.distinct().size < 2) return@forEach
             val secs = group.map { it.security }.toSet()
             if (secs.size > 1 && !secs.all { it in setOf(SecurityType.WPA2, SecurityType.WPA2_WPA3, SecurityType.WPA3) }) {

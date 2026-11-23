@@ -4,6 +4,7 @@
     <!-- Информация о Wi-Fi и сети -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Android 8–12: нужна для scanResults и SSID; Android 13+: SSID текущей сети тоже требует её -->

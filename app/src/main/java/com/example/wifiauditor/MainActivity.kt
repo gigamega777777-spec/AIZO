@@ -13,11 +13,17 @@ import com.example.wifiauditor.ui.MainViewModel
 
 class MainActivity : ComponentActivity() {
     private val vm: MainViewModel by viewModels()
-    private val permLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { }
+    private val permLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { vm.refreshStatus() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent { MaterialTheme { MainScreen(vm, ::requestPerms) } }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        vm.refreshStatus() // пользователь мог включить геолокацию/Wi-Fi в шторке
     }
 
     private fun requestPerms() {
