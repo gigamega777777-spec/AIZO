@@ -25,6 +25,9 @@ data class UiState(
     val log: List<LogEntry> = emptyList(),
     val networks: List<ScannedAp> = emptyList(),
     val scanning: Boolean = false,
+    val osintTarget: String = "",
+    val osintPorts: List<PortResult> = emptyList(),
+    val osintScanning: Boolean = false,
 )
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
@@ -91,6 +94,18 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 else log("Система не выполнила новый скан (лимит частоты), показан кэш: ${out.aps.size}", Severity.WARNING)
             }
             _state.update { it.copy(scanning = false) }
+        }
+    }
+
+    fun setOsintTarget(v: String) = _state.update { it.copy(osintTarget = v) }
+
+    fun runOsintScan() {
+        val ip = _state.value.osintTarget.trim()
+        if (ip.isBlank() || _state.value.osintScanning) return
+        _state.update { it.copy(osintScanning = true, osintPorts = emptyList()) }
+        viewModelScope.launch {
+            val ports = runCatching { GatewayPortScanner().scan(ip) }.getOrNull() ?: emptyList()
+            _state.update { it.copy(osintPorts = ports, osintScanning = false) }
         }
     }
 

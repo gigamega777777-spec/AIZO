@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -24,9 +28,18 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
     val s by vm.state.collectAsState()
     var logOpen by rememberSaveable { mutableStateOf(true) }
     var netsOpen by rememberSaveable { mutableStateOf(true) }
+    var tab by rememberSaveable { mutableStateOf(0) }
 
-    Scaffold { pad ->
-        LazyColumn(
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(selected = tab == 0, onClick = { tab = 0 }, icon = { Icon(Icons.Filled.Home, null) }, label = { Text("Аудит") })
+                NavigationBarItem(selected = tab == 1, onClick = { tab = 1 }, icon = { Icon(Icons.Filled.Search, null) }, label = { Text("OSINT") })
+                NavigationBarItem(selected = tab == 2, onClick = { tab = 2 }, icon = { Icon(Icons.Filled.Wifi, null) }, label = { Text("Сеть") })
+            }
+        }
+    ) { pad ->
+        if (tab == 0) LazyColumn(
             Modifier.padding(pad).padding(horizontal = 16.dp),
             contentPadding = PaddingValues(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -122,6 +135,21 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
                         Text("• Recon-ng — фреймворк разведки", fontSize = 13.sp)
                     }
                 }
+            }
+        } else if (tab == 1) {
+            Column(Modifier.padding(pad).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("OSINT — разведка", style = MaterialTheme.typography.headlineSmall, color = Color(0xFF7C3AED))
+                OutlinedTextField(value = s.osintTarget, onValueChange = vm::setOsintTarget, label = { Text("Цель (IP/домен)") }, modifier = Modifier.fillMaxWidth())
+                Button(onClick = vm::runOsintScan, enabled = !s.osintScanning) { Text(if (s.osintScanning) "Сканирую…" else "Сканировать порты") }
+                s.osintPorts.forEach { p ->
+                    Text("${p.port} ${p.service}: ${if (p.open) "ОТКРЫТ" else "закрыт"}", color = if (p.open) Color(0xFFDC2626) else Color.Unspecified)
+                }
+                Text("Разведка сети: ${s.networks.size} сетей поблизости", fontSize = 13.sp)
+            }
+        } else {
+            Column(Modifier.padding(pad).padding(16.dp)) {
+                Text("Сеть", style = MaterialTheme.typography.headlineSmall)
+                Text("Устройств: ${s.networks.size}")
             }
         }
     }
