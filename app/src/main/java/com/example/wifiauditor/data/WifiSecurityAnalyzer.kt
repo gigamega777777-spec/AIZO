@@ -42,7 +42,7 @@ class WifiSecurityAnalyzer {
             ScanResult.CHANNEL_WIDTH_20MHZ -> 20
             ScanResult.CHANNEL_WIDTH_40MHZ -> 40
             ScanResult.CHANNEL_WIDTH_80MHZ -> 80
-            ScanResult.CHANNEL_WIDTH_160MHZ, ScanResult.CHANNEL_WIDTH_80MHZ_PLUSMHZ -> 160
+            ScanResult.CHANNEL_WIDTH_160MHZ -> 160
             else -> null
         }
         val standard = if (Build.VERSION.SDK_INT >= 30) when (r.wifiStandard) {
