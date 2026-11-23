@@ -8,6 +8,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.*
+import kotlinx.coroutines.delay
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.example.wifiauditor.ui.MainScreen
 import com.example.wifiauditor.ui.MainViewModel
 
@@ -18,7 +27,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme { MainScreen(vm, ::requestPerms) } }
+        setContent { MaterialTheme(colorScheme = darkColorScheme(primary = Color(0xFF7C3AED), secondary = Color(0xFFDC2626), error = Color(0xFFDC2626))) { var showSplash by remember { mutableStateOf(true) }; LaunchedEffect(Unit) { delay(1500); showSplash = false }; if (showSplash) { Box(Modifier.fillMaxSize().background(Color(0xFF0F0A1A)), contentAlignment = Alignment.Center) { Text("AIZO", color = Color(0xFF7C3AED), fontSize = 48.sp, fontWeight = FontWeight.Bold) } } else { MainScreen(vm, ::requestPerms) } } }
     }
 
     override fun onResume() {

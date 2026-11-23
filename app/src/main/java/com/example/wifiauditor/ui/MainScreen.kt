@@ -32,7 +32,7 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                Text("Wi-Fi Security Auditor", style = MaterialTheme.typography.headlineSmall)
+                Text("AIZO", style = MaterialTheme.typography.headlineLarge, color = Color(0xFF7C3AED))
                 Text("Пассивный аудит только вашей собственной сети", fontSize = 12.sp)
             }
             item { StatusCard(s) }
@@ -107,6 +107,21 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
                     }
                 }
                 items(s.networks, key = { it.bssid }) { NetworkRow(it) }
+            }
+
+            // ---- OSINT: сбор информации и разведка ----
+            item {
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("OSINT — сбор информации и разведка", style = MaterialTheme.typography.titleMedium, color = Color(0xFF7C3AED))
+                        Text("Инструменты для пассивной разведки и визуализации связей:", fontSize = 13.sp)
+                        Text("• Nmap — сканирование портов и сервисов", fontSize = 13.sp)
+                        Text("• Maltego — визуализация связей в виде графа", fontSize = 13.sp)
+                        Text("• Shodan / Censys — поиск устройств в интернете", fontSize = 13.sp)
+                        Text("• theHarvester — сбор email, доменов, IP", fontSize = 13.sp)
+                        Text("• Recon-ng — фреймворк разведки", fontSize = 13.sp)
+                    }
+                }
             }
         }
     }
