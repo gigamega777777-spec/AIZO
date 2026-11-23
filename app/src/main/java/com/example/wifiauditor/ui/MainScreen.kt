@@ -149,6 +149,10 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
                     Spacer(Modifier.width(8.dp))
                     Switch(checked = s.packetCapture, onCheckedChange = { vm.togglePacketCapture() })
                 }
+                Button(onClick = vm::loadMyConfig) { Text("Узнать свой конфиг") }
+                if (s.myConfig.isNotBlank()) {
+                    Text(s.myConfig, fontFamily = FontFamily.Monospace, fontSize = 11.sp)
+                }
                 s.osintPorts.forEach { p ->
                     Text("${p.port} ${p.service}: ${if (p.open) "ОТКРЫТ" else "закрыт"}", color = if (p.open) Color(0xFFDC2626) else Color.Unspecified)
                 }

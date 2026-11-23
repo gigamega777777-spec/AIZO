@@ -4,11 +4,14 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wifiauditor.data.*
+import android.content.Intent
 import com.example.wifiauditor.domain.model.*
 import com.example.wifiauditor.domain.usecase.RunAuditUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Dispatchers
+import java.net.NetworkInterface
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -29,6 +32,7 @@ data class UiState(
     val osintPorts: List<PortResult> = emptyList(),
     val osintScanning: Boolean = false,
     val packetCapture: Boolean = false,
+    val myConfig: String = "",
 )
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
@@ -100,7 +104,33 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setOsintTarget(v: String) = _state.update { it.copy(osintTarget = v) }
 
-    fun togglePacketCapture() = _state.update { it.copy(packetCapture = !it.packetCapture) }
+    fun togglePacketCapture() {
+        val app = getApplication<Application>()
+        val newState = !_state.value.packetCapture
+        if (newState) {
+            app.startService(Intent(app, PacketCaptureService::class.java))
+        } else {
+            app.stopService(Intent(app, PacketCaptureService::class.java))
+        }
+        _state.update { it.copy(packetCapture = newState) }
+    }
+
+    fun loadMyConfig() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val sb = StringBuilder()
+            try {
+                val ifaces = NetworkInterface.getNetworkInterfaces().toList()
+                for (iface in ifaces) {
+                    sb.append(iface.name).append(": ")
+                    val addrs = iface.inetAddresses.toList()
+                    sb.append(addrs.joinToString { it.hostAddress ?: "" }).append("\n")
+                }
+            } catch (e: Exception) {
+                sb.append("Ошибка: ").append(e.message)
+            }
+            _state.update { it.copy(myConfig = sb.toString()) }
+        }
+    }
 
     fun runOsintScan() {
         val ip = _state.value.osintTarget.trim()
