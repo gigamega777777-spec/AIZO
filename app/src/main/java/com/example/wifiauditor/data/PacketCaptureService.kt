@@ -27,7 +27,7 @@ class PacketCaptureService : VpnService() {
             val fd = tun?.fileDescriptor ?: return@launch
             val buf = ByteArray(32767)
             while (running) {
-                val n = try { fd.inputStream().read(buf) } catch (_: Exception) { -1 }
+                val n = try { java.io.FileInputStream(fd).read(buf) } catch (_: Exception) { -1 }
                 if (n <= 0) break
                 packetCount++
             }
