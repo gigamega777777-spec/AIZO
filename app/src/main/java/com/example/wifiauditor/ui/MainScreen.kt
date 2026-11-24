@@ -32,7 +32,6 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
     var netsOpen by rememberSaveable { mutableStateOf(true) }
     var tab by rememberSaveable { mutableStateOf(0) }
 
-    CompositionLocalProvider(LocalTextStyle provides TextStyle(fontFamily = FontFamily.Cursive)) {
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -153,6 +152,10 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
                 if (s.myConfig.isNotBlank()) {
                     Text(s.myConfig, fontFamily = FontFamily.Monospace, fontSize = 11.sp)
                 }
+                Text("Пакетов: ${com.example.wifiauditor.data.PacketCaptureService.packetCount}")
+                com.example.wifiauditor.data.PacketCaptureService.snapshot().takeLast(10).forEach { p ->
+                    Text(p, fontFamily = FontFamily.Monospace, fontSize = 10.sp)
+                }
                 s.osintPorts.forEach { p ->
                     Text("${p.port} ${p.service}: ${if (p.open) "ОТКРЫТ" else "закрыт"}", color = if (p.open) Color(0xFFDC2626) else Color.Unspecified)
                 }
@@ -164,7 +167,6 @@ fun MainScreen(vm: MainViewModel, onRequestPermissions: () -> Unit) {
                 Text("Устройств: ${s.networks.size}")
             }
         }
-    }
     }
 }
 

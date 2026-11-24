@@ -13,6 +13,16 @@ class PacketCaptureService : VpnService() {
     companion object {
         @Volatile var running = false
         @Volatile var packetCount = 0
+        val packets = mutableListOf<String>()
+        private val lock = Any()
+        fun addPacket(bytes: ByteArray) {
+            val hex = bytes.take(64).joinToString(" ") { "%02X".format(it) }
+            synchronized(lock) {
+                packets.add(hex)
+                if (packets.size > 50) packets.removeAt(0)
+            }
+        }
+        fun snapshot(): List<String> = synchronized(lock) { packets.toList() }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -30,6 +40,7 @@ class PacketCaptureService : VpnService() {
                 val n = try { java.io.FileInputStream(fd).read(buf) } catch (_: Exception) { -1 }
                 if (n <= 0) break
                 packetCount++
+                addPacket(buf.copyOf(n))
             }
         }
         return START_STICKY
